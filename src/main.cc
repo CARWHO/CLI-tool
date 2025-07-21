@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -25,7 +26,6 @@ void print_file(string filename) {
             print_line(line, i);
             i++;
         };
-    command(filename);
 }
 
 void edit_line(vector<string>& lines, int line_num, string filename) {
@@ -34,7 +34,6 @@ void edit_line(vector<string>& lines, int line_num, string filename) {
     cout << "Edit line " << line_num << ": " << lines[line_num-1] << endl;
     cout << "New text: ";
 
-    cin.ignore();
     getline(cin, new_text);
     lines[line_num-1] = new_text;
 
@@ -47,7 +46,6 @@ void save_file(const vector<string>& lines, const string& filename) {
     for (size_t i = 0; i < lines.size(); ++i) {
         out << lines[i] << '\n';
     }
-
     cout << "File saved" << endl;
 }
 
@@ -61,26 +59,26 @@ void command(string filename) {
     vector<string> file_contents;
     ifstream infile(filename);
     string line;
+    int line_num;
 
     while (getline(infile, line)) {
         file_contents.push_back(line);
     }
 
-    char cmd;
-    int line_num;
-
     while (true) {
-    
-            cin >> cmd;
 
-            if (cmd == 'E') {
-                if (!(cin >> line_num)) {
-                    cout << "Please specify line number";
-                    break;
-                }
+            getline(cin,line);
+            istringstream iss(line);
+            char cmd; iss >> cmd;
+
+            if (cmd == 'E' ) {
+                if (!(iss >> line_num)) {
+                cout << "Please specify a line number." << endl;
+            } else {
                 edit_line(file_contents, line_num, filename);
+                }
             }
-
+                
             if (cmd == 'P') {
                 print_file(filename);
             }
@@ -99,7 +97,7 @@ int main(int argc, char* argv[]) {
 
     auto file = argv[1];
     cout << "Opened: " << file << endl;
-    cout << "Welcome to Cli-Tool, P(Print), S(Save), E(Edit) {Line Number}, Q(Quit)" << endl;
+    cout << "Welcome to Cli-Tool, P(Print), S(Save), E(Edit)+[Line Number], Q(Quit)" << endl;
     command(file);
     return 0;
 }
